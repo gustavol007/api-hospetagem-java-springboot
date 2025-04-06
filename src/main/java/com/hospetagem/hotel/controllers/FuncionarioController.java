@@ -16,25 +16,25 @@ public class FuncionarioController {
     @Autowired
     private FuncionarioService funcionarioService;
     
-    @PostMapping
+    @PostMapping(value = "/criarFuncionario")
     public ResponseEntity<Funcionario> criarFuncionario(@RequestBody Funcionario funcionario) {
         Funcionario novoFuncionario = funcionarioService.salvarFuncionario(funcionario);
         return ResponseEntity.ok(novoFuncionario);
     }
 
-    @GetMapping
+    @GetMapping(value = "/listarFuncionarios")
     public ResponseEntity<List<Funcionario>> listarFuncionarios() {
         return ResponseEntity.ok(funcionarioService.listarFuncionarios());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("consultarFuncionarioPorId/{id}")
     public ResponseEntity<Funcionario> buscarFuncionarioPorId(@PathVariable Long id) {
         Optional<Funcionario> funcionario = funcionarioService.buscarFuncionarioPorId(id);
         return funcionario.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("atualizarFuncionario/{id}")
     public ResponseEntity<Funcionario> atualizarFuncionario(@PathVariable Long id, @RequestBody Funcionario funcionario) {
         try {
             Funcionario funcionarioAtualizado = funcionarioService.atualizarFuncionario(id, funcionario);
@@ -44,10 +44,16 @@ public class FuncionarioController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("deletarFuncionario/{id}")
     public ResponseEntity<Void> deletarFuncionario(@PathVariable Long id) {
         funcionarioService.deletarFuncionario(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("alterarStatus/{id}")
+    public ResponseEntity<Funcionario> alterarStatus(@PathVariable Long id){
+        Funcionario funcionarioAtualizado = funcionarioService.alterarStatus(id);
+        return ResponseEntity.ok(funcionarioAtualizado);
     }
 }
 
