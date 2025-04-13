@@ -14,4 +14,9 @@ public class Funcionario extends Pessoa{
 
     @Column(nullable = false)
     private Double salario;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "endereco_id", referencedColumnName = "id_endereco")
+    private Endereco endereco;
+
 }
