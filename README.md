@@ -23,36 +23,31 @@ Api Java para um hotel de pet
 
 ## 📁 Estrutura de Pastas
 
-src/
-├── main/
-│   ├── java/
-│   │   └── com/
-│   │       └── hospetagem/
-│   │           └── hotel/
-│   │               ├── controllers/         # Controladores REST
-│   │               │   ├── ClienteController.java
-│   │               │   ├── FuncionarioController.java
-│   │               │
-│   │               ├── model/              # Entidades JPA
-│   │               │   ├── Cliente.java
-│   │               │   ├── Endereco.java
-│   │               │   ├── Funcionario.java
-│   │               │   ├── Pessoa.java
-│   │               │
-│   │               ├── repository/         # Repositórios JPA
-│   │               │   ├── ClienteRepository.java
-│   │               │   ├── FuncionarioRepository.java
-│   │               │   ├── EnderecoRepository.java
-│   │               │
-│   │               ├── service/            # Serviços de Negócio
-│   │               │   ├── ClienteService.java
-│   │               │   ├── FuncionarioService.java
-│   │               │
-│   │               └── HotelApplication.java   # Classe principal
-│
-├── resources/
-│   ├── application.properties     # Configurações do Spring Boot
-│   ├── data.sql                   # Dados iniciais (opcional)
-│   ├── schema.sql                 # Script de criação do banco (opcional)
-│
-└── test/                          # Testes unitários e de integração
+📦 src/main/java/com/hospetagem/hotel ├── controllers # Controladores da aplicação (REST APIs) │ ├── ClienteController.java │ ├── FuncionarioController.java │ └── (... outros controladores) ├── dto # Data Transfer Objects (DTOs) │ ├── ClienteDTO.java │ ├── EnderecoDTO.java │ ├── FuncionarioDTO.java │ └── (... outros DTOs) ├── mapper # Mapeadores para conversão de Entidades ↔ DTOs │ ├── ClienteMapper.java │ ├── EnderecoMapper.java │ └── FuncionarioMapper.java ├── model # Modelos/JPA Entities │ ├── Cliente.java │ ├── Endereco.java │ ├── Funcionario.java │ ├── Pessoa.java │ └── (... outras entidades) ├── repository # Interfaces de repositórios JPA │ ├── ClienteRepository.java │ ├── EnderecoRepository.java │ ├── FuncionarioRepository.java │ └── (... outros repositórios) ├── service # Camada de serviços (regras de negócio) │ ├── ClienteService.java │ ├── EnderecoService.java │ ├── FuncionarioService.java │ └── (... outros serviços) └── HotelApplication.java # Classe principal para inicialização do Spring Boot
+
+
+
+---
+
+### Diretórios do projeto
+
+1. **controllers**:
+   Contém as classes responsáveis pelas APIs REST. É onde as requisições HTTP são gerenciadas.
+   
+2. **dto**:
+   Arquivos que representam objetos de transferência de dados. São usados para expor ou receber dados de forma simplificada, ao invés de manipular diretamente as entidades.
+
+3. **mapper**:
+   Contém as classes que convertem entre entidades do banco de dados (`model`) e os objetos de transferência de dados (`dto`).
+
+4. **model**:
+   Abriga as entidades JPA que representam as tabelas do banco de dados.
+
+5. **repository**:
+   Interfaces responsáveis por acessar e manipular os dados no banco por meio do JPA.
+
+6. **service**:
+   Camada de lógica de negócios. É aqui que ficam as regras de manipulação e validação antes de acessar o banco ou expor dados para as controllers.
+
+7. **HotelApplication.java**:
+   Classe principal para inicializar a aplicação Spring Boot.
