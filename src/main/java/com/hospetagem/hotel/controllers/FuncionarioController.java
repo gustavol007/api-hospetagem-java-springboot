@@ -1,11 +1,10 @@
 package com.hospetagem.hotel.controllers;
 
-import com.hospetagem.hotel.model.Endereco;
-import com.hospetagem.hotel.model.Funcionario;
+import com.hospetagem.hotel.dto.EnderecoDTO;
+import com.hospetagem.hotel.dto.FuncionarioDTO;
 import com.hospetagem.hotel.service.FuncionarioService;
-
-import org.springframework.http.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,70 +17,76 @@ public class FuncionarioController {
 
     @Autowired
     private FuncionarioService funcionarioService;
-    
-    @PostMapping(value = "/criarFuncionario")
-    public ResponseEntity<Funcionario> criarFuncionario(@RequestBody Funcionario funcionario) {
-        Funcionario novoFuncionario = funcionarioService.salvarFuncionario(funcionario);
+
+    // Criar um novo funcionário a partir de um DTO
+    @PostMapping(value = "/criarFuncionario", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<FuncionarioDTO> criarFuncionario(@RequestBody FuncionarioDTO funcionarioDTO) {
+        FuncionarioDTO novoFuncionario = funcionarioService.salvarFuncionario(funcionarioDTO);
         return ResponseEntity.ok(novoFuncionario);
     }
 
-    @GetMapping(value = "/listarFuncionarios")
-    public ResponseEntity<List<Funcionario>> listarFuncionarios() {
+    // Listar todos os funcionários como DTOs
+    @GetMapping(value = "/listarFuncionarios", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<FuncionarioDTO>> listarFuncionarios() {
         return ResponseEntity.ok(funcionarioService.listarFuncionarios());
     }
 
+    // Consultar funcionário por ID e retornar DTO
     @GetMapping("consultarFuncionarioPorId/{id}")
-    public ResponseEntity<Funcionario> buscarFuncionarioPorId(@PathVariable Long id) {
-        Optional<Funcionario> funcionario = funcionarioService.buscarFuncionarioPorId(id);
-        return funcionario.map(ResponseEntity::ok)
+    public ResponseEntity<FuncionarioDTO> buscarFuncionarioPorId(@PathVariable Long id) {
+        Optional<FuncionarioDTO> funcionarioDTO = funcionarioService.buscarFuncionarioPorId(id);
+        return funcionarioDTO.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    // Atualizar um funcionário a partir de um DTO
     @PutMapping("atualizarFuncionario/{id}")
-    public ResponseEntity<Funcionario> atualizarFuncionario(@PathVariable Long id, @RequestBody Funcionario funcionario) {
+    public ResponseEntity<FuncionarioDTO> atualizarFuncionario(
+            @PathVariable Long id,
+            @RequestBody FuncionarioDTO funcionarioDTO
+    ) {
         try {
-            Funcionario funcionarioAtualizado = funcionarioService.atualizarFuncionario(id, funcionario);
+            FuncionarioDTO funcionarioAtualizado = funcionarioService.atualizarFuncionario(id, funcionarioDTO);
             return ResponseEntity.ok(funcionarioAtualizado);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
+    // Deletar um funcionário (mantém sem DTO, pois é apenas uma ação de exclusão)
     @DeleteMapping("deletarFuncionario/{id}")
     public ResponseEntity<Void> deletarFuncionario(@PathVariable Long id) {
         funcionarioService.deletarFuncionario(id);
         return ResponseEntity.noContent().build();
     }
 
+    // Alterar o status de um funcionário (ATIVO para INATIVO e vice-versa)
     @PutMapping("alterarStatus/{id}")
-    public ResponseEntity<Funcionario> alterarStatus(@PathVariable Long id){
-        Funcionario funcionarioAtualizado = funcionarioService.alterarStatus(id);
+    public ResponseEntity<FuncionarioDTO> alterarStatus(@PathVariable Long id) {
+        FuncionarioDTO funcionarioAtualizado = funcionarioService.alterarStatus(id);
         return ResponseEntity.ok(funcionarioAtualizado);
     }
 
-    // Endpoint para adicionar endereço ao funcionário
-    @PostMapping("/endereco/{id}")
-    public ResponseEntity<Funcionario> adicionarEndereco(@PathVariable Long id, @RequestBody Endereco endereco) {
-        Funcionario funcionario = funcionarioService.adicionarEndereco(id, endereco);
-        return ResponseEntity.ok(funcionario);
+    // Retorna o endereço de um funcionário
+    @GetMapping("/{id}/endereco")
+    public ResponseEntity<EnderecoDTO> getEnderecoByFuncionarioId(@PathVariable Long id) {
+        try {
+            EnderecoDTO endereco = funcionarioService.getEnderecoByFuncionarioId(id);
+            return ResponseEntity.ok(endereco);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    // Endpoint para remover endereço do funcionário
-    @DeleteMapping(value = "/{id}/endereco/{enderecoId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Funcionario removerEndereco(@PathVariable Long id, @PathVariable Long enderecoId) {
-        return funcionarioService.removerEndereco(id, enderecoId);
+    // Atualiza ou adiciona o endereço de um funcionário
+    @PutMapping("/{id}/endereco")
+    public ResponseEntity<EnderecoDTO> atualizarEndereco(@PathVariable Long id, @RequestBody EnderecoDTO enderecoDTO) {
+        try {
+            EnderecoDTO enderecoAtualizado = funcionarioService.salvarOuAtualizarEndereco(id, enderecoDTO);
+            return ResponseEntity.ok(enderecoAtualizado);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    // Endpoint para atualizar endereço do funcionário
-    @PutMapping(value = "/{id}/endereco/{enderecoId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Funcionario atualizarEndereco(@PathVariable Long id, @PathVariable Long enderecoId, @RequestBody Endereco novoEndereco) {
-        return funcionarioService.atualizarEndereco(id, enderecoId, novoEndereco);
-    }
-
-    // Endpoint para buscar funcionário por email
-    @GetMapping(value = "/email/{email}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Funcionario buscarFuncionarioPorEmail(@PathVariable String email) {
-        return funcionarioService.buscarFuncionarioPorEmail(email);
-    }
 }
-

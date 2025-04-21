@@ -1,6 +1,9 @@
 package com.hospetagem.hotel.service;
 
-import com.hospetagem.hotel.model.Cliente;
+import com.hospetagem.hotel.dto.EnderecoDTO;
+import com.hospetagem.hotel.dto.FuncionarioDTO;
+import com.hospetagem.hotel.mapper.EnderecoMapper;
+import com.hospetagem.hotel.mapper.FuncionarioMapper;
 import com.hospetagem.hotel.model.Endereco;
 import com.hospetagem.hotel.model.Funcionario;
 import com.hospetagem.hotel.repository.FuncionarioRepository;
@@ -16,123 +19,79 @@ public class FuncionarioService {
     @Autowired
     private FuncionarioRepository funcionarioRepository;
 
-    public Funcionario salvarFuncionario(Funcionario funcionario) {
-        return funcionarioRepository.save(funcionario);
+    @Autowired
+    private EnderecoMapper enderecoMapper;
+
+    // Salvar um funcionário a partir de um DTO
+    public FuncionarioDTO salvarFuncionario(FuncionarioDTO funcionarioDTO) {
+        Funcionario funcionario = FuncionarioMapper.toEntity(funcionarioDTO);
+        funcionario.setStatus(Funcionario.Status.ATIVO);
+        Funcionario funcionarioSalvo = funcionarioRepository.save(funcionario);
+        return FuncionarioMapper.toDTO(funcionarioSalvo);
     }
 
-    public List<Funcionario> listarFuncionarios() {
-        return funcionarioRepository.findAll();
+    // Listar funcionários como DTOs
+    public List<FuncionarioDTO> listarFuncionarios() {
+        return funcionarioRepository.findAll().stream()
+                .map(FuncionarioMapper::toDTO)
+                .toList();
     }
 
-    public Optional<Funcionario> buscarFuncionarioPorId(Long id) {
-        return funcionarioRepository.findById(id);
+    // Buscar funcionário por ID e retornar DTO
+    public Optional<FuncionarioDTO> buscarFuncionarioPorId(Long id) {
+        return funcionarioRepository.findById(id)
+                .map(FuncionarioMapper::toDTO);
     }
 
-    public Funcionario atualizarFuncionario(Long id, Funcionario funcionarioAtualizado) {
-        return funcionarioRepository.findById(id).map(funcionario -> {
-            funcionario.setName(funcionarioAtualizado.getName());
-            funcionario.setEmail(funcionarioAtualizado.getEmail());
-            funcionario.setSenha(funcionarioAtualizado.getSenha());
-            funcionario.setCpf(funcionarioAtualizado.getCpf());
-            funcionario.setData_nascimento(funcionarioAtualizado.getData_nascimento());
-            funcionario.setSexo(funcionarioAtualizado.getSexo());
-            funcionario.setCargo(funcionarioAtualizado.getCargo());
-            funcionario.setSalario(funcionarioAtualizado.getSalario());
-            return funcionarioRepository.save(funcionario);
-        }).orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
+    // Atualizar funcionário a partir de um DTO
+    public FuncionarioDTO atualizarFuncionario(Long id, FuncionarioDTO funcionarioDTO) {
+        Optional<Funcionario> funcionarioExistente = funcionarioRepository.findById(id);
+        if (funcionarioExistente.isEmpty()) {
+            throw new RuntimeException("Funcionário não encontrado");
+        }
+        Funcionario funcionarioAtualizado = FuncionarioMapper.toEntity(funcionarioDTO);
+        funcionarioAtualizado.setId(id); // Garante que estamos atualizando um funcionário existente
+        Funcionario funcionarioSalvo = funcionarioRepository.save(funcionarioAtualizado);
+        return FuncionarioMapper.toDTO(funcionarioSalvo);
     }
 
+    // Método para deletar funcionário (mantém sem DTOs, pois apenas deleta)
     public void deletarFuncionario(Long id) {
         funcionarioRepository.deleteById(id);
     }
 
-    public Funcionario alterarStatus(Long id){
-        Optional<Funcionario> funcionarioOptional = funcionarioRepository.findById(id);
-
-        if (funcionarioOptional.isEmpty()) {
-            throw new RuntimeException("Cliente não encontrado com ID: " + id);
+    // Alterar status do funcionário e retornar DTO
+    public FuncionarioDTO alterarStatus(Long id) {
+        Optional<Funcionario> optionalFuncionario = funcionarioRepository.findById(id);
+        if (optionalFuncionario.isEmpty()) {
+            throw new RuntimeException("Funcionário não encontrado");
         }
 
-        Funcionario funcionario = funcionarioOptional.get();
+        Funcionario funcionario = optionalFuncionario.get();
+        funcionario.setStatus(funcionario.getStatus() == Funcionario.Status.ATIVO ? Funcionario.Status.INATIVO : Funcionario.Status.ATIVO);
+        Funcionario funcionarioAtualizado = funcionarioRepository.save(funcionario);
+        return FuncionarioMapper.toDTO(funcionarioAtualizado);
+    }
 
-        // Alterna o status
-        if (funcionario.getStatus() == Cliente.Status.ATIVO) {
-            funcionario.setStatus(Cliente.Status.INATIVO);
-        } else {
-            funcionario.setStatus(Cliente.Status.ATIVO);
+    // Recupera o endereço do funcionário
+    public EnderecoDTO getEnderecoByFuncionarioId(Long funcionarioId) {
+        Funcionario funcionario = funcionarioRepository.findById(funcionarioId)
+                .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
+        if (funcionario.getEndereco() == null) {
+            throw new RuntimeException("Funcionário não possui um endereço associado");
         }
-
-        // Salva a alteração no banco de dados
-        return funcionarioRepository.save(funcionario);
+        return enderecoMapper.toDTO(funcionario.getEndereco());
     }
 
-    public Funcionario login(String email, String senha) {
-        return funcionarioRepository.findByEmailAndSenha(email, senha)
-                .orElseThrow(() -> new RuntimeException("Email ou senha inválidos"));
-    }
-
-    public Funcionario adicionarEndereco(Long id, Endereco endereco) {
-        Optional<Funcionario> funcionarioOptional = funcionarioRepository.findById(id);
-    
-        if (funcionarioOptional.isPresent()) {
-            Funcionario funcionarioExistente = funcionarioOptional.get();
-    
-            // Associa o endereço ao funcionário
-            endereco.setFuncionario(funcionarioExistente);
-            funcionarioExistente.setEndereco(endereco);
-    
-            // Salva o funcionário com o endereço associado
-            return funcionarioRepository.save(funcionarioExistente);
-        } else {
-            throw new RuntimeException("Funcionário não encontrado com ID: " + id);
-        }
-    }
-
-    public Funcionario removerEndereco(Long id, Long enderecoId) {
-        Optional<Funcionario> funcionarioOptional = funcionarioRepository.findById(id);
-
-        if (funcionarioOptional.isPresent()) {
-            Funcionario funcionarioExistente = funcionarioOptional.get();
-            if (funcionarioExistente.getEndereco() != null && funcionarioExistente.getEndereco().getId_endereco() == enderecoId) {
-                funcionarioExistente.setEndereco(null);
-                return funcionarioRepository.save(funcionarioExistente);
-            } else {
-                throw new RuntimeException("Endereço não encontrado para o funcionário com ID: " + id);
-            }
-        } else {
-            throw new RuntimeException("Funcionário não encontrado com ID: " + id);
-        }
-    }
-
-    public Funcionario atualizarEndereco(Long idFuncionario, Long idEndereco, Endereco novoEndereco) {
-        Optional<Funcionario> funcionarioOptional = funcionarioRepository.findById(idFuncionario);
-    
-        if (funcionarioOptional.isPresent()) {
-            Funcionario funcionarioExistente = funcionarioOptional.get();
-            Endereco enderecoExistente = funcionarioExistente.getEndereco();
-    
-            if (enderecoExistente != null && enderecoExistente.getId_endereco() == idEndereco) {
-                // Atualiza os campos do endereço existente
-                if (novoEndereco.getLogradouro() != null) enderecoExistente.setLogradouro(novoEndereco.getLogradouro());
-                if (novoEndereco.getNumero() != null) enderecoExistente.setNumero(novoEndereco.getNumero());
-                if (novoEndereco.getBairro() != null) enderecoExistente.setBairro(novoEndereco.getBairro());
-                if (novoEndereco.getComplemento() != null) enderecoExistente.setComplemento(novoEndereco.getComplemento());
-                if (novoEndereco.getCidade() != null) enderecoExistente.setCidade(novoEndereco.getCidade());
-                if (novoEndereco.getEstado() != null) enderecoExistente.setEstado(novoEndereco.getEstado());
-                if (novoEndereco.getCep() != null) enderecoExistente.setCep(novoEndereco.getCep());
-    
-                return funcionarioRepository.save(funcionarioExistente);
-            } else {
-                throw new RuntimeException("Endereço não encontrado para o funcionário com ID: " + idFuncionario);
-            }
-        } else {
-            throw new RuntimeException("Funcionário não encontrado com ID: " + idFuncionario);
-        }
-    }
-    
-    public Funcionario buscarFuncionarioPorEmail(String email) {
-        return funcionarioRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Funcionário não encontrado com o email: " + email));
+    // Atualiza ou adiciona o endereço de um funcionário
+    public EnderecoDTO salvarOuAtualizarEndereco(Long funcionarioId, EnderecoDTO enderecoDTO) {
+        Funcionario funcionario = funcionarioRepository.findById(funcionarioId)
+                .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
+        Endereco enderecoAtualizado = enderecoMapper.toEntity(enderecoDTO);
+        enderecoAtualizado.setFuncionario(funcionario); // Vincula o endereço ao funcionário
+        funcionario.setEndereco(enderecoAtualizado);
+        funcionarioRepository.save(funcionario);
+        return enderecoMapper.toDTO(enderecoAtualizado);
     }
 
 }
-

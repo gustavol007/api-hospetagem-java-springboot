@@ -47,4 +47,11 @@ public abstract class Pessoa {
         ATIVO,
         INATIVO;
     }
+
+    @PrePersist
+    @PreUpdate
+    public void formatarCampos() {
+        this.name = (name != null) ? name.toUpperCase() : null;
+        this.email = (email != null) ? email.toUpperCase() : null;
+    }
 }

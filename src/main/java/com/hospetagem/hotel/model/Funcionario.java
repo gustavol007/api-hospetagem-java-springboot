@@ -19,4 +19,9 @@ public class Funcionario extends Pessoa{
     @JoinColumn(name = "endereco_id", referencedColumnName = "id_endereco")
     private Endereco endereco;
 
+    public void formatarCampos() {
+        super.formatarCampos();
+        this.cargo = (cargo != null) ? cargo.toUpperCase() : null;
+    }
+
 }

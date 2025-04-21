@@ -46,4 +46,5 @@ public class Endereco {
 
     @OneToOne(mappedBy = "endereco", cascade = CascadeType.ALL)
     private Funcionario funcionario;
+
 }

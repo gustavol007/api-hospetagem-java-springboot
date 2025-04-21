@@ -3,8 +3,13 @@ package com.hospetagem.hotel.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.hospetagem.hotel.dto.ClienteDTO;
+import com.hospetagem.hotel.dto.EnderecoDTO;
+import com.hospetagem.hotel.mapper.ClienteMapper;
+import com.hospetagem.hotel.mapper.EnderecoMapper;
 import com.hospetagem.hotel.model.Endereco;
 import com.hospetagem.hotel.repository.EnderecoRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,11 +25,17 @@ public class ClienteService {
     @Autowired
     private EnderecoRepository enderecoRepository;
 
+    @Autowired
+    EnderecoMapper enderecoMapper;
+
     public List<Cliente> getAllClientes() {
         return clienteRepository.findAll();
     }
 
     public Cliente createCliente(Cliente cliente) {
+
+        cliente.setStatus(Cliente.Status.ATIVO);
+
         return clienteRepository.save(cliente);
     }
 
@@ -56,11 +67,19 @@ public class ClienteService {
     }
 
     public Cliente login(String email, String senha) {
-        return clienteRepository.findByEmailAndSenha(email, senha)
-                .orElseThrow(() -> new IllegalArgumentException("Email ou senha inválidos"));
+        Optional<Cliente> clienteOpt = clienteRepository.findByEmailAndSenha(email, senha);
+
+        if (clienteOpt.isPresent()) {
+            Cliente cliente = clienteOpt.get();
+            return cliente;
+        } else {
+            throw new IllegalArgumentException("Usuário ou senha inválidos");
+        }
     }
 
-    // Método para alterar Status
+
+
+// Método para alterar Status
     public Cliente alterarStatus(Long id) {
         // Busca o cliente pelo ID
         Optional<Cliente> clienteOptional = clienteRepository.findById(id);
@@ -82,33 +101,62 @@ public class ClienteService {
         return clienteRepository.save(cliente);
     }
 
-    public Cliente adicionarEnderco(Long clienteId, Endereco endereco){
-        Cliente cliente = clienteRepository.findById(clienteId).orElseThrow();
+    public ClienteDTO adicionarEndereco(Long clienteId, EnderecoDTO enderecoDTO) {
+        Cliente cliente = clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+
+        Endereco endereco = EnderecoMapper.toEntity(enderecoDTO);
         endereco.setCliente(cliente);
-        enderecoRepository.save(endereco);
-        return cliente;
-    }
-    public Cliente removerEndereco(Long clienteId, Long enderecoId){
-        Cliente cliente = clienteRepository.findById(clienteId).orElseThrow();
-        Endereco endereco = enderecoRepository.findById(enderecoId).orElseThrow();
-        endereco.setCliente(null);
-        return cliente;
+        cliente.getEnderecos().add(endereco);
+
+        Cliente clienteAtualizado = clienteRepository.save(cliente);
+        return ClienteMapper.toDTO(clienteAtualizado);
     }
 
-    public Cliente atualizarEndereco(Long idCliente, Long idEndereco, Endereco novoEndereco) {
-        Cliente cliente = buscarClientePorId(idCliente);
+    public List<EnderecoDTO> getEnderecosByClienteId(Long clienteId) {
+        Cliente cliente = clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        // Procurar o endereço a ser atualizado na lista de endereços do cliente
-        Endereco enderecoExistente = cliente.getEnderecos().stream()
-                .filter(endereco -> endereco.getId_endereco() == idEndereco)
+        // Usa o mapper para converter a lista de entidades para DTO
+        return enderecoMapper.toDTOList(cliente.getEnderecos());
+    }
+
+
+    public ClienteDTO removerEndereco(Long clienteId, Long enderecoId) {
+        Cliente cliente = clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+
+        Endereco endereco = cliente.getEnderecos().stream()
+                .filter(e -> e.getId_endereco() == enderecoId)
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Endereço não encontrado com ID: " + idEndereco));
+                .orElseThrow(() -> new RuntimeException("Endereço não encontrado"));
 
-        // Atualizar os campos do endereço existente com os dados do novo endereço
-        atualizarCamposEndereco(enderecoExistente, novoEndereco);
+        cliente.getEnderecos().remove(endereco);
+        enderecoRepository.delete(endereco);
 
-        // Persistir as alterações e retornar o cliente atualizado
-        return clienteRepository.save(cliente);
+        Cliente clienteAtualizado = clienteRepository.save(cliente);
+        return ClienteMapper.toDTO(clienteAtualizado);
+    }
+
+    public ClienteDTO atualizarEndereco(Long clienteId, Long enderecoId, @Valid EnderecoDTO enderecoDTO) {
+        Cliente cliente = clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+
+        Endereco enderecoExistente = cliente.getEnderecos().stream()
+                .filter(e -> e.getId_endereco() == enderecoId)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Endereço não encontrado"));
+
+        enderecoExistente.setLogradouro(enderecoDTO.logradouro());
+        enderecoExistente.setNumero(enderecoDTO.numero());
+        enderecoExistente.setComplemento(enderecoDTO.complemento());
+        enderecoExistente.setBairro(enderecoDTO.bairro());
+        enderecoExistente.setCidade(enderecoDTO.cidade());
+        enderecoExistente.setEstado(enderecoDTO.estado().toUpperCase());
+        enderecoExistente.setCep(enderecoDTO.cep());
+
+        clienteRepository.save(cliente);
+        return ClienteMapper.toDTO(cliente);
     }
 
     private Cliente buscarClientePorId(Long idCliente) {
