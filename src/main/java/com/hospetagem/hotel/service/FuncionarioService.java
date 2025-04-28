@@ -94,4 +94,9 @@ public class FuncionarioService {
         return enderecoMapper.toDTO(enderecoAtualizado);
     }
 
+    public boolean autenticarFuncionario(String email, String senha) {
+        Optional<Funcionario> funcionarioOpt = funcionarioRepository.findByEmailAndSenha(email, senha);
+        return funcionarioOpt.isPresent();
+    }
+
 }

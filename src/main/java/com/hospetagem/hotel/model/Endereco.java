@@ -47,4 +47,14 @@ public class Endereco {
     @OneToOne(mappedBy = "endereco", cascade = CascadeType.ALL)
     private Funcionario funcionario;
 
+    @PrePersist
+    @PreUpdate
+    public void formatarCampos() {
+        this.logradouro = (logradouro != null) ? logradouro.toUpperCase() : null;
+        this.numero = (numero != null) ? numero.toUpperCase() : null;
+        this.Bairro = (Bairro != null) ? Bairro.toUpperCase() : null;
+        this.cidade = (cidade != null) ? cidade.toUpperCase() : null;
+        this.estado = (estado != null) ? estado.toUpperCase() : null;
+        this.cep = (cep != null) ? cep.toUpperCase() : null;
+    }
 }

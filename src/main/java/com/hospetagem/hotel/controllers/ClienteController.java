@@ -28,7 +28,7 @@ public class ClienteController {
     /**
      * Retorna todos os clientes como uma lista de ClienteDTO.
      */
-    @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/lista", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ClienteDTO>> getAllClientes() {
         List<Cliente> clientes = clienteService.getAllClientes();
         List<ClienteDTO> clienteDTOs = clientes.stream()
@@ -81,15 +81,6 @@ public class ClienteController {
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ClienteDTO> consultarClientePorId(@PathVariable Long id) {
         Cliente cliente = clienteService.getClienteById(id);
-        return ResponseEntity.ok(ClienteMapper.toDTO(cliente));
-    }
-
-    /**
-     * Login de um cliente usando email e senha.
-     */
-    @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ClienteDTO> login(@RequestBody @Valid LoginDTO loginDTO) {
-        Cliente cliente = clienteService.login(loginDTO.email(), loginDTO.senha());
         return ResponseEntity.ok(ClienteMapper.toDTO(cliente));
     }
 

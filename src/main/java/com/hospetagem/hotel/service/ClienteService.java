@@ -66,20 +66,8 @@ public class ClienteService {
         throw new UnsupportedOperationException("Unimplemented method 'save'");
     }
 
-    public Cliente login(String email, String senha) {
-        Optional<Cliente> clienteOpt = clienteRepository.findByEmailAndSenha(email, senha);
 
-        if (clienteOpt.isPresent()) {
-            Cliente cliente = clienteOpt.get();
-            return cliente;
-        } else {
-            throw new IllegalArgumentException("Usuário ou senha inválidos");
-        }
-    }
-
-
-
-// Método para alterar Status
+   // Método para alterar Status
     public Cliente alterarStatus(Long id) {
         // Busca o cliente pelo ID
         Optional<Cliente> clienteOptional = clienteRepository.findById(id);
@@ -172,6 +160,11 @@ public class ClienteService {
         enderecoExistente.setCidade(novoEndereco.getCidade());
         enderecoExistente.setEstado(novoEndereco.getEstado());
         enderecoExistente.setCep(novoEndereco.getCep());
+    }
+
+    public boolean autenticarCliente(String email, String senha) {
+        Optional<Cliente> clienteOpt = clienteRepository.findByEmailAndSenha(email, senha);
+        return clienteOpt.isPresent();
     }
 
 }
