@@ -6,8 +6,11 @@ import com.hospetagem.hotel.mapper.EnderecoMapper;
 import com.hospetagem.hotel.mapper.FuncionarioMapper;
 import com.hospetagem.hotel.model.Endereco;
 import com.hospetagem.hotel.model.Funcionario;
+import com.hospetagem.hotel.model.enums.Role;
 import com.hospetagem.hotel.repository.FuncionarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,10 +25,15 @@ public class FuncionarioService {
     @Autowired
     private EnderecoMapper enderecoMapper;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     // Salvar um funcionário a partir de um DTO
     public FuncionarioDTO salvarFuncionario(FuncionarioDTO funcionarioDTO) {
         Funcionario funcionario = FuncionarioMapper.toEntity(funcionarioDTO);
         funcionario.setStatus(Funcionario.Status.ATIVO);
+        funcionario.setRole(Role.ROLE_FUNCIONARIO);
+        funcionario.setSenha(passwordEncoder.encode(funcionario.getSenha()));
         Funcionario funcionarioSalvo = funcionarioRepository.save(funcionario);
         return FuncionarioMapper.toDTO(funcionarioSalvo);
     }
@@ -95,8 +103,15 @@ public class FuncionarioService {
     }
 
     public boolean autenticarFuncionario(String email, String senha) {
-        Optional<Funcionario> funcionarioOpt = funcionarioRepository.findByEmailAndSenha(email, senha);
-        return funcionarioOpt.isPresent();
+        Optional<Funcionario> funcionarioOpt = funcionarioRepository.findByEmail(email);
+        if (funcionarioOpt.isEmpty()) {
+            return false;
+        }
+
+        Funcionario funcionario = funcionarioOpt.get();
+        boolean senhaValida = passwordEncoder.matches(senha, funcionario.getSenha());
+
+        return senhaValida;
     }
 
 }

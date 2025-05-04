@@ -8,9 +8,11 @@ import com.hospetagem.hotel.dto.EnderecoDTO;
 import com.hospetagem.hotel.mapper.ClienteMapper;
 import com.hospetagem.hotel.mapper.EnderecoMapper;
 import com.hospetagem.hotel.model.Endereco;
+import com.hospetagem.hotel.model.enums.Role;
 import com.hospetagem.hotel.repository.EnderecoRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.hospetagem.hotel.model.Cliente;
@@ -28,15 +30,21 @@ public class ClienteService {
     @Autowired
     EnderecoMapper enderecoMapper;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public List<Cliente> getAllClientes() {
         return clienteRepository.findAll();
     }
 
-    public Cliente createCliente(Cliente cliente) {
-
+    public ClienteDTO createCliente(ClienteDTO clienteDTO) {
+        Cliente cliente = ClienteMapper.toEntity(clienteDTO);
+        String senhaCriptografada = passwordEncoder.encode(cliente.getSenha());
+        cliente.setSenha(senhaCriptografada);
         cliente.setStatus(Cliente.Status.ATIVO);
-
-        return clienteRepository.save(cliente);
+        cliente.setRole(Role.ROLE_CLIENTE);
+        Cliente clienteSalvo = clienteRepository.save(cliente);
+        return ClienteMapper.toDTO(clienteSalvo);
     }
 
     public Cliente updateCliente(Cliente cliente) {
@@ -163,8 +171,20 @@ public class ClienteService {
     }
 
     public boolean autenticarCliente(String email, String senha) {
-        Optional<Cliente> clienteOpt = clienteRepository.findByEmailAndSenha(email, senha);
-        return clienteOpt.isPresent();
-    }
+        Optional<Cliente> clienteOpt = clienteRepository.findByEmail(email);
 
+        if (clienteOpt.isEmpty()) {
+            System.out.println("Cliente não encontrado com o email: " + email);
+            return false; // Cliente não encontrado
+        }
+
+        Cliente cliente = clienteOpt.get();
+        System.out.println("Cliente encontrado: " + cliente.getEmail());
+
+        // Compara a senha
+        boolean senhaValida = passwordEncoder.matches(senha, cliente.getSenha());
+        System.out.println("Senha válida? " + senhaValida);
+
+        return senhaValida;
+    }
 }

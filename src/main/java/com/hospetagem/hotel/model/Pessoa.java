@@ -1,9 +1,13 @@
 package com.hospetagem.hotel.model;
 
+import com.hospetagem.hotel.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
 
 @Data
 @MappedSuperclass // OU use @Entity para a estratégia JOINED
@@ -34,6 +38,14 @@ public abstract class Pessoa {
     @Enumerated(EnumType.STRING)
     private Pessoa.Sexo sexo;
 
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime criado_em;
+
+    @UpdateTimestamp
+    private LocalDateTime atualizado_em;
+
+
     public enum Sexo {
         MASCULINO,
         FEMININO,
@@ -47,6 +59,9 @@ public abstract class Pessoa {
         ATIVO,
         INATIVO;
     }
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @PrePersist
     @PreUpdate

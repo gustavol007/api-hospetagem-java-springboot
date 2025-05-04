@@ -2,10 +2,7 @@ package com.hospetagem.hotel.dto;
 
 import com.hospetagem.hotel.model.Pessoa.Sexo;
 import com.hospetagem.hotel.model.Pessoa.Status;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.br.CPF;
 
 import java.sql.Date;
@@ -21,6 +18,9 @@ public record FuncionarioDTO(
         @Email(message = "O email deve ser válido")
         String email,
 
+        @NotBlank(message = "A senha é obrigatória")
+        @Size(min = 8, message = "A senha deve ter no mínimo 8 caracteres")
+        @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\W).*$", message = "A senha deve conter ao menos uma letra maiúscula, uma letra minúscula e um caractere especial")
         String senha,
 
         @NotBlank(message = "O CPF é obrigatório")

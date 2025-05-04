@@ -22,7 +22,7 @@ public class FuncionarioController {
     @PostMapping(value = "/criarFuncionario", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<FuncionarioDTO> criarFuncionario(@RequestBody FuncionarioDTO funcionarioDTO) {
         FuncionarioDTO novoFuncionario = funcionarioService.salvarFuncionario(funcionarioDTO);
-        return ResponseEntity.ok(novoFuncionario);
+        return ResponseEntity.status(201).body(novoFuncionario);
     }
 
     // Listar todos os funcionários como DTOs

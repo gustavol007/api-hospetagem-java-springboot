@@ -16,7 +16,7 @@ public class ClienteMapper {
                 formatarTelefone(cliente.getTelefone()),
                 cliente.getData_nascimento(),
                 cliente.getSexo(),
-                cliente.getSenha()
+                null
         );
     }
 

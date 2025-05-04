@@ -2,6 +2,7 @@ package com.hospetagem.hotel.mapper;
 
 import com.hospetagem.hotel.dto.FuncionarioDTO;
 import com.hospetagem.hotel.model.Funcionario;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 public class FuncionarioMapper {
 
@@ -10,7 +11,7 @@ public class FuncionarioMapper {
                 funcionario.getId(),
                 funcionario.getName(),
                 funcionario.getEmail(),
-                null, // Não incluir a senha no DTO por motivos de segurança
+                "", // Não incluir a senha no DTO por motivos de segurança
                 formatarCPF(funcionario.getCpf()),
                 formatarTelefone(funcionario.getTelefone()),
                 funcionario.getData_nascimento(),

@@ -2,9 +2,11 @@ package com.hospetagem.hotel.controllers;
 
 import com.hospetagem.hotel.service.ClienteService;
 import com.hospetagem.hotel.service.FuncionarioService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.support.SessionStatus;
 
 @RestController
 @RequestMapping("/api/session")
@@ -19,10 +21,11 @@ public class SessionController {
     public String login(@RequestParam String email,
                         @RequestParam String senha,
                         @RequestParam String tipoUsuario,
-                        HttpSession session) {
+                        HttpSession session, SessionStatus sessionStatus, HttpServletResponse httpServletResponse) {
         if ("cliente".equalsIgnoreCase(tipoUsuario)) {
             // Autentica Cliente
             if (clienteService.autenticarCliente(email, senha)) {
+
                 session.setAttribute("usuario", email);
                 session.setAttribute("tipoUsuario", "cliente");
                 return "Cliente autenticado com sucesso!";

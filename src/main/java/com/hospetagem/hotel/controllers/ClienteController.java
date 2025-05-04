@@ -41,15 +41,9 @@ public class ClienteController {
      * Cria um novo cliente a partir de um ClienteDTO.
      */
     @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ClienteDTO> createNewCliente(@RequestBody @Valid ClienteDTO clienteDTO) {
-        // Mapeia o DTO para entidade
-        Cliente cliente = ClienteMapper.toEntity(clienteDTO);
-
-        // Cria o cliente no serviço
-        Cliente clienteSalvo = clienteService.createCliente(cliente);
-
-        // Retorna o DTO do cliente criado
-        return ResponseEntity.status(HttpStatus.CREATED).body(ClienteMapper.toDTO(clienteSalvo));
+    public ResponseEntity<ClienteDTO> createCliente(@RequestBody @Valid ClienteDTO clienteDTO) {
+        ClienteDTO clienteCriado = clienteService.createCliente(clienteDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(clienteCriado);
     }
 
 
