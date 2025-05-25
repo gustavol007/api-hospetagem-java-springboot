@@ -89,4 +89,21 @@ public class FuncionarioController {
         }
     }
 
+    // Endpoint para solicitar recuperação de senha
+    @PostMapping("/esquecer-senha")
+    public ResponseEntity<String> esquecerSenha(@RequestParam String email) {
+        funcionarioService.enviarLinkRecuperacao(email);
+        return ResponseEntity.ok("Link de recuperação enviado para o e-mail.");
+    }
+
+    // Endpoint para redefinir senha
+    @PostMapping("/redefinir-senha")
+    public ResponseEntity<String> redefinirSenha(
+            @RequestParam String codigo,
+            @RequestParam String novaSenha) {
+        funcionarioService.redefinirSenha(codigo, novaSenha);
+        return ResponseEntity.ok("Senha redefinida com sucesso.");
+    }
+
+
 }

@@ -23,5 +23,4 @@ public class Funcionario extends Pessoa{
         super.formatarCampos();
         this.cargo = (cargo != null) ? cargo.toUpperCase() : null;
     }
-
 }

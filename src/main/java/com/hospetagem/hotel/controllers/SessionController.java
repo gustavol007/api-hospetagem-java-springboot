@@ -1,5 +1,6 @@
 package com.hospetagem.hotel.controllers;
 
+import com.hospetagem.hotel.Security.LoginAttemptService;
 import com.hospetagem.hotel.service.ClienteService;
 import com.hospetagem.hotel.service.FuncionarioService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,30 +18,43 @@ public class SessionController {
     @Autowired
     private FuncionarioService funcionarioService;
 
+    @Autowired
+    private LoginAttemptService loginAttemptService;
+
     @PostMapping("/login")
     public String login(@RequestParam String email,
                         @RequestParam String senha,
                         @RequestParam String tipoUsuario,
-                        HttpSession session, SessionStatus sessionStatus, HttpServletResponse httpServletResponse) {
-        if ("cliente".equalsIgnoreCase(tipoUsuario)) {
-            // Autentica Cliente
-            if (clienteService.autenticarCliente(email, senha)) {
+                        HttpSession session, HttpServletResponse httpServletResponse) {
 
-                session.setAttribute("usuario", email);
-                session.setAttribute("tipoUsuario", "cliente");
-                return "Cliente autenticado com sucesso!";
-            }
-        } else if ("funcionario".equalsIgnoreCase(tipoUsuario)) {
-            // Autentica Funcionário
-            if (funcionarioService.autenticarFuncionario(email, senha)) {
-                session.setAttribute("usuario", email);
-                session.setAttribute("tipoUsuario", "funcionario");
-                return "Funcionário autenticado com sucesso!";
-            }
+        // Verificar se o usuário já está bloqueado
+        if (loginAttemptService.isBlocked(email)) {
+            return "Conta temporariamente bloqueada devido a múltiplas tentativas falhas. Tente novamente mais tarde.";
         }
 
-        return "Credenciais inválidas ou tipo de usuário não reconhecido.";
+        boolean autenticado = false;
+
+        if ("cliente".equalsIgnoreCase(tipoUsuario)) {
+            // Autentica Cliente
+            autenticado = clienteService.autenticarCliente(email, senha);
+        } else if ("funcionario".equalsIgnoreCase(tipoUsuario)) {
+            // Autentica Funcionário
+            autenticado = funcionarioService.autenticarFuncionario(email, senha);
+        }
+
+        if (autenticado) {
+            // Sucesso: resetar tentativas e criar sessão
+            loginAttemptService.loginSucceeded(email);
+            session.setAttribute("usuario", email);
+            session.setAttribute("tipoUsuario", tipoUsuario);
+            return tipoUsuario + " autenticado com sucesso!";
+        } else {
+            // Falha: registrar tentativa
+            loginAttemptService.loginFailed(email);
+            return "Credenciais inválidas.";
+        }
     }
+
 
     // Verifica quem está na sessão
     @GetMapping("/usuario")

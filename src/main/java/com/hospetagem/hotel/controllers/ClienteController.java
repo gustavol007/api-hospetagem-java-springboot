@@ -130,4 +130,21 @@ public class ClienteController {
         ClienteDTO clienteDTO = clienteService.atualizarEndereco(id, enderecoId, enderecoAtualizadoDTO);
         return ResponseEntity.ok(clienteDTO);
     }
+
+    // Endpoint para solicitar recuperação de senha
+    @PostMapping("/esquecer-senha")
+    public ResponseEntity<String> esquecerSenha(@RequestParam String email) {
+        clienteService.enviarLinkRecuperacao(email);
+        return ResponseEntity.ok("Link de recuperação enviado para o e-mail.");
+    }
+
+    // Endpoint para redefinir senha
+    @PostMapping("/redefinir-senha")
+    public ResponseEntity<String> redefinirSenha(
+            @RequestParam String codigo,
+            @RequestParam String novaSenha) {
+        clienteService.redefinirSenha(codigo, novaSenha);
+        return ResponseEntity.ok("Senha redefinida com sucesso.");
+    }
+
 }

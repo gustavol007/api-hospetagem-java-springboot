@@ -45,6 +45,12 @@ public abstract class Pessoa {
     @UpdateTimestamp
     private LocalDateTime atualizado_em;
 
+    @Column(name = "codigo_recuperacao", unique = true)
+    private String codigoRecuperacao;
+
+    @Column(name = "codigo_expiracao")
+    private LocalDateTime codigoExpiracao;
+
 
     public enum Sexo {
         MASCULINO,

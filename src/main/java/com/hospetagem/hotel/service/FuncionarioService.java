@@ -13,8 +13,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class FuncionarioService {
@@ -27,6 +29,9 @@ public class FuncionarioService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EmailService emailService;
 
     // Salvar um funcionário a partir de um DTO
     public FuncionarioDTO salvarFuncionario(FuncionarioDTO funcionarioDTO) {
@@ -113,5 +118,42 @@ public class FuncionarioService {
 
         return senhaValida;
     }
+
+    // Envia o link de recuperação de senha
+    public void enviarLinkRecuperacao(String email) {
+        Funcionario funcionario = funcionarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("E-mail não encontrado"));
+
+        String codigoRecuperacao = UUID.randomUUID().toString(); // Gera o código único
+        funcionario.setCodigoRecuperacao(codigoRecuperacao);
+        funcionario.setCodigoExpiracao(LocalDateTime.now().plusMinutes(15)); // 15 minutos de validade
+
+        funcionarioRepository.save(funcionario);
+
+        // Monta e envia o e-mail com o link
+        String linkRecuperacao = String.format("http://localhost:8080/api/funcionario/redefinir-senha?codigo=%s", codigoRecuperacao);
+        String mensagem = "Clique no link abaixo para redefinir sua senha:\n" + linkRecuperacao;
+
+        emailService.enviarEmail(funcionario.getEmail(), "Recuperação de Senha", mensagem);
+    }
+
+    // Redefine a senha baseada no código
+    public void redefinirSenha(String codigoRecuperacao, String novaSenha) {
+        Funcionario funcionario = funcionarioRepository.findByCodigoRecuperacao(codigoRecuperacao)
+                .orElseThrow(() -> new RuntimeException("Código de recuperação inválido"));
+
+        // Verifica se o código expirou
+        if (funcionario.getCodigoExpiracao().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Código de recuperação expirou");
+        }
+
+        // Atualiza a senha e limpa os campos de recuperação
+        funcionario.setSenha(passwordEncoder.encode(novaSenha)); // Codifica a nova senha
+        funcionario.setCodigoRecuperacao(null);
+        funcionario.setCodigoExpiracao(null);
+
+        funcionarioRepository.save(funcionario);
+    }
+
 
 }

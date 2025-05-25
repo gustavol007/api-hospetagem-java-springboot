@@ -1,6 +1,7 @@
 package com.hospetagem.hotel.model;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -19,5 +20,16 @@ public class Cliente extends Pessoa{
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Endereco> enderecos;
+
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
+    private List<Pet> pets = new ArrayList<>();
+
+    @OneToMany
+    @JoinColumn(name = "cliente_id")
+    private List<Reserva> reservas = new ArrayList<>();
+
+    @OneToMany
+    @JoinColumn(name = "cliente_id")
+    private List<Cartao> cartao = new ArrayList<>();
 
 }

@@ -1,7 +1,10 @@
 package com.hospetagem.hotel.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
 
 import com.hospetagem.hotel.dto.ClienteDTO;
 import com.hospetagem.hotel.dto.EnderecoDTO;
@@ -32,6 +35,9 @@ public class ClienteService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EmailService emailService;
 
     public List<Cliente> getAllClientes() {
         return clienteRepository.findAll();
@@ -187,4 +193,54 @@ public class ClienteService {
 
         return senhaValida;
     }
+
+    // Envia o link de recuperação de senha
+    public void enviarLinkRecuperacao(String email) {
+        Cliente cliente = clienteRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("E-mail não encontrado"));
+
+
+
+        String codigoRecuperacao = gerarCodigoRecuperacao();
+        // Gera o código único
+        cliente.setCodigoRecuperacao(codigoRecuperacao);
+        cliente.setCodigoExpiracao(LocalDateTime.now().plusMinutes(15)); // 15 minutos de validade
+
+        clienteRepository.save(cliente);
+
+
+
+        emailService.enviarEmail(email, "Recuperação de senha",
+                "Seu código de recuperação é: " + codigoRecuperacao);
+
+    }
+
+    private String gerarCodigoRecuperacao() {
+        Random random = new Random();
+        int codigo = 100000 + random.nextInt(900000); // Gera um número entre 100000 e 999999
+        return String.valueOf(codigo);
+    }
+
+
+    // Redefine a senha baseada no código
+    public void redefinirSenha(String codigoRecuperacao, String novaSenha) {
+        Cliente cliente = clienteRepository.findByCodigoRecuperacao(codigoRecuperacao)
+                .orElseThrow(() -> new RuntimeException("Código de recuperação inválido"));
+
+        // Verifica se o código expirou
+        if (cliente.getCodigoExpiracao().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Código de recuperação expirou");
+        }
+
+        // Atualiza a senha e limpa os campos de recuperação
+        cliente.setSenha(passwordEncoder.encode(novaSenha)); // Codifica a nova senha
+        cliente.setCodigoRecuperacao(null);
+        cliente.setCodigoExpiracao(null);
+
+        clienteRepository.save(cliente);
+    }
+
+
+
+
 }

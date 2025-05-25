@@ -1,63 +1,44 @@
 package com.hospetagem.hotel.mapper;
 
+
 import com.hospetagem.hotel.dto.PetDTO;
 import com.hospetagem.hotel.model.Pet;
-import com.hospetagem.hotel.model.enums.PortePet;
-import com.hospetagem.hotel.model.enums.SexoPet;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PetMapper {
-
-    public static PetDTO toDTO(Pet pet) {
+    // Converte de entidade Pet para DTO PetDTO
+    public PetDTO toDTO(Pet pet) {
         if (pet == null) {
             return null;
         }
-        
         return new PetDTO(
                 pet.getId(),
                 pet.getNome(),
                 pet.getIdade(),
                 pet.getRaca(),
-                pet.getEspecie(),
+                pet.getPeso(),
+                pet.getTemperamento(),
                 pet.getSexo(),
-                pet.getPorte()
+                pet.getObservacaoPet()
         );
     }
 
-    public static Pet toEntity(PetDTO petDTO) {
+    // Converte de DTO PetDTO para entidade Pet
+    public Pet toEntity(PetDTO petDTO) {
         if (petDTO == null) {
             return null;
         }
-        
         Pet pet = new Pet();
-        updateEntityFromDTO(petDTO, pet);
+        pet.setId(petDTO.id());
+        pet.setNome(petDTO.nome());
+        pet.setIdade(petDTO.idade());
+        pet.setRaca(petDTO.raca());
+        pet.setPeso(petDTO.peso());
+        pet.setTemperamento(petDTO.temperamento());
+        pet.setSexo(petDTO.sexo());
+        pet.setObservacaoPet(petDTO.observacaoPet());
         return pet;
     }
 
-    public static void updateEntityFromDTO(PetDTO petDTO, Pet pet) {
-        if (petDTO == null || pet == null) {
-            return;
-        }
-        
-        if (petDTO.id() != null) {
-            pet.setId(petDTO.id());
-        }
-        if (petDTO.nome() != null) {
-            pet.setNome(petDTO.nome());
-        }
-        if (petDTO.idade() != null) {
-            pet.setIdade(petDTO.idade());
-        }
-        if (petDTO.raca() != null) {
-            pet.setRaca(petDTO.raca());
-        }
-        if (petDTO.especie() != null) {
-            pet.setEspecie(petDTO.especie());
-        }
-        if (petDTO.sexo() != null) {
-            pet.setSexo(petDTO.sexo());
-        }
-        if (petDTO.porte() != null) {
-            pet.setPorte(petDTO.porte());
-        }
-    }
 }
