@@ -1,6 +1,7 @@
 package com.hospetagem.hotel.model;
 
 import com.hospetagem.hotel.model.enums.Role;
+import com.hospetagem.hotel.model.enums.Sexo;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -36,7 +37,7 @@ public abstract class Pessoa {
     private Date data_nascimento;
 
     @Enumerated(EnumType.STRING)
-    private Pessoa.Sexo sexo;
+    private Sexo sexo;
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -50,13 +51,6 @@ public abstract class Pessoa {
 
     @Column(name = "codigo_expiracao")
     private LocalDateTime codigoExpiracao;
-
-
-    public enum Sexo {
-        MASCULINO,
-        FEMININO,
-        OUTRO
-    }
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.ATIVO;

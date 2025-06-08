@@ -6,6 +6,7 @@ import com.hospetagem.hotel.service.FuncionarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -90,6 +91,7 @@ public class FuncionarioController {
     }
 
     // Endpoint para solicitar recuperação de senha
+    @PreAuthorize("hasRole('FUNCIONARIO')")
     @PostMapping("/esquecer-senha")
     public ResponseEntity<String> esquecerSenha(@RequestParam String email) {
         funcionarioService.enviarLinkRecuperacao(email);
@@ -97,6 +99,7 @@ public class FuncionarioController {
     }
 
     // Endpoint para redefinir senha
+    @PreAuthorize("hasRole('FUNCIONARIO')")
     @PostMapping("/redefinir-senha")
     public ResponseEntity<String> redefinirSenha(
             @RequestParam String codigo,

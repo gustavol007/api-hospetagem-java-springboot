@@ -3,8 +3,10 @@ package com.hospetagem.hotel.controllers;
 
 import com.hospetagem.hotel.dto.PetDTO;
 import com.hospetagem.hotel.service.PetService;
+import jakarta.persistence.PrePersist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,45 +18,29 @@ public class PetController {
 
     @Autowired
     PetService petService;
-
-    // Adiciona um pet a um cliente específico
-    @PostMapping("/{clienteId}")
-    public ResponseEntity<PetDTO> adicionarPetAoCliente(
-            @PathVariable Long clienteId,
-            @Validated @RequestBody PetDTO petDTO) {
-        PetDTO petSalvo = petService.adicionarPetAoCliente(clienteId, petDTO);
-        return ResponseEntity.ok(petSalvo);
+    @PreAuthorize("hasRole('CLIENTE')")
+    @PostMapping("/cliente/{clienteId}")
+    public ResponseEntity<PetDTO> criarPet(@PathVariable Long clienteId, @RequestBody @Validated PetDTO petDTO) {
+        PetDTO dto = petService.criarPet(clienteId, petDTO);
+        return ResponseEntity.ok(dto);
     }
 
-    // Lista todos os pets de um cliente específico
-    @GetMapping("/{clienteId}")
+
+    @GetMapping("/cliente/{clienteId}")
     public ResponseEntity<List<PetDTO>> listarPetsDoCliente(@PathVariable Long clienteId) {
         List<PetDTO> pets = petService.listarPetsDoCliente(clienteId);
         return ResponseEntity.ok(pets);
     }
 
-    // Atualiza um pet de um cliente específico
-    @PutMapping("/{clienteId}")
-    public ResponseEntity<PetDTO> atualizarPet(
-            @PathVariable Long clienteId,
-            @Validated @RequestBody PetDTO petDTO) {
-        PetDTO petAtualizado = petService.atualizarPet(clienteId, petDTO);
-        return ResponseEntity.ok(petAtualizado);
+    @GetMapping("/{petId}")
+    public ResponseEntity<PetDTO> buscarPorId(@PathVariable Long petId) {
+        PetDTO pet = petService.buscarPorId(petId);
+        return ResponseEntity.ok(pet);
     }
 
-    // Remove um pet pelo ID
     @DeleteMapping("/{petId}")
-    public ResponseEntity<Void> removerPet(@PathVariable Long petId) {
-        petService.removerPet(petId);
-        return ResponseEntity.noContent().build();
-    }
-
-    // Remove um pet de um cliente específico
-    @DeleteMapping("/{clienteId}/{petId}")
-    public ResponseEntity<Void> removerPetDoCliente(
-            @PathVariable Long clienteId,
-            @PathVariable Long petId) {
-        petService.removerPet(clienteId, petId);
+    public ResponseEntity<Void> deletarPet(@PathVariable Long petId) {
+        petService.deletarPet(petId);
         return ResponseEntity.noContent().build();
     }
 }

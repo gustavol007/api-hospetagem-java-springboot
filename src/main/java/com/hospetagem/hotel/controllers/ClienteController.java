@@ -1,24 +1,27 @@
 package com.hospetagem.hotel.controllers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.hospetagem.hotel.dto.ClienteDTO;
 import com.hospetagem.hotel.dto.EnderecoDTO;
-import com.hospetagem.hotel.dto.LoginDTO;
 import com.hospetagem.hotel.mapper.ClienteMapper;
 import com.hospetagem.hotel.model.Cliente;
-import com.hospetagem.hotel.model.Endereco;
 import com.hospetagem.hotel.service.ClienteService;
+import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:5501", allowCredentials = "true")
 @RequestMapping("/api/clientes")
 public class ClienteController {
 
@@ -28,6 +31,7 @@ public class ClienteController {
     /**
      * Retorna todos os clientes como uma lista de ClienteDTO.
      */
+//    @PreAuthorize("hasRole('FUNCIONARIO')")
     @GetMapping(value = "/lista", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ClienteDTO>> getAllClientes() {
         List<Cliente> clientes = clienteService.getAllClientes();
@@ -37,6 +41,29 @@ public class ClienteController {
         return ResponseEntity.ok(clienteDTOs);
     }
 
+
+    // Exemplo de endpoint para retornar o usuário autenticado
+    @GetMapping("/me")
+    public ResponseEntity<?> getClienteLogado(Authentication authentication) {
+        if (authentication == null) {
+            return ResponseEntity.status(401).body("Não autenticado");
+        }
+        String email = authentication.getName();
+        Cliente cliente = clienteService.buscarPorEmail(email);
+        if (cliente == null) {
+            return ResponseEntity.status(404).body("Cliente não encontrado");
+        }
+        // Retorne os dados necessários
+        Map<String, Object> dados = new HashMap<>();
+        dados.put("nome", cliente.getName());
+        dados.put("cpf", cliente.getCpf());
+        dados.put("email", cliente.getEmail());
+        dados.put("telefone", cliente.getTelefone());
+        dados.put("data_nascimento", cliente.getData_nascimento());
+        dados.put("sexo", cliente.getSexo());
+        // ...adicione outros campos conforme necessário
+        return ResponseEntity.ok(dados);
+    }
     /**
      * Cria um novo cliente a partir de um ClienteDTO.
      */
@@ -50,6 +77,7 @@ public class ClienteController {
     /**
      * Atualiza informações de um cliente existente.
      */
+
     @PutMapping(value = "/update/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ClienteDTO> updateCliente(
             @PathVariable Long id,
@@ -72,6 +100,7 @@ public class ClienteController {
     /**
      * Consulta um cliente específico pelo seu ID.
      */
+//    @PreAuthorize("hasRole('FUNCIONARIO')")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ClienteDTO> consultarClientePorId(@PathVariable Long id) {
         Cliente cliente = clienteService.getClienteById(id);
@@ -81,6 +110,7 @@ public class ClienteController {
     /**
      * Retorna os endereços do cliente
      */
+
     @GetMapping(value = "/{id}/enderecos", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<EnderecoDTO>> getEnderecosByClienteId(@PathVariable Long id) {
         List<EnderecoDTO> enderecos = clienteService.getEnderecosByClienteId(id);
@@ -100,6 +130,7 @@ public class ClienteController {
     /**
      * Adiciona um endereço a um cliente específico.
      */
+    @PreAuthorize("hasRole('CLIENTE')")
     @PostMapping(value = "/{id}/enderecos", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ClienteDTO> adicionarEndereco(
             @PathVariable Long id,
@@ -132,6 +163,7 @@ public class ClienteController {
     }
 
     // Endpoint para solicitar recuperação de senha
+    @PreAuthorize("hasRole('CLIENTE')")
     @PostMapping("/esquecer-senha")
     public ResponseEntity<String> esquecerSenha(@RequestParam String email) {
         clienteService.enviarLinkRecuperacao(email);
@@ -139,6 +171,8 @@ public class ClienteController {
     }
 
     // Endpoint para redefinir senha
+
+    @PreAuthorize("hasRole('CLIENTE')")
     @PostMapping("/redefinir-senha")
     public ResponseEntity<String> redefinirSenha(
             @RequestParam String codigo,

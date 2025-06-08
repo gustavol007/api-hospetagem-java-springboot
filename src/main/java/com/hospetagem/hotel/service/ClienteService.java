@@ -15,6 +15,7 @@ import com.hospetagem.hotel.model.enums.Role;
 import com.hospetagem.hotel.repository.EnderecoRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -78,6 +79,12 @@ public class ClienteService {
     public Cliente save(Cliente updateCliente) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'save'");
+    }
+
+
+    public Cliente buscarPorEmail(String email) {
+        return clienteRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado com o e-mail: " + email));
     }
 
 

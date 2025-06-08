@@ -1,7 +1,7 @@
 package com.hospetagem.hotel.dto;
 
-import com.hospetagem.hotel.model.Pessoa.Sexo;
 import com.hospetagem.hotel.model.Pessoa.Status;
+import com.hospetagem.hotel.model.enums.Sexo;
 import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.br.CPF;
 

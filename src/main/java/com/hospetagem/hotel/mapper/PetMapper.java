@@ -7,37 +7,41 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class PetMapper {
-    // Converte de entidade Pet para DTO PetDTO
     public PetDTO toDTO(Pet pet) {
-        if (pet == null) {
-            return null;
-        }
+        if (pet == null) return null;
         return new PetDTO(
                 pet.getId(),
                 pet.getNome(),
                 pet.getIdade(),
+                pet.getEspecie(),
+                pet.getPorte(),
                 pet.getRaca(),
                 pet.getPeso(),
                 pet.getTemperamento(),
                 pet.getSexo(),
-                pet.getObservacaoPet()
+                pet.getCastrado(),
+                pet.getHistoricoDoencaAlergia(),
+                pet.getConvivenciaAnimais(),
+                pet.getObservacao()
         );
     }
 
-    // Converte de DTO PetDTO para entidade Pet
-    public Pet toEntity(PetDTO petDTO) {
-        if (petDTO == null) {
-            return null;
-        }
+    public Pet toEntity(PetDTO dto) {
+        if (dto == null) return null;
         Pet pet = new Pet();
-        pet.setId(petDTO.id());
-        pet.setNome(petDTO.nome());
-        pet.setIdade(petDTO.idade());
-        pet.setRaca(petDTO.raca());
-        pet.setPeso(petDTO.peso());
-        pet.setTemperamento(petDTO.temperamento());
-        pet.setSexo(petDTO.sexo());
-        pet.setObservacaoPet(petDTO.observacaoPet());
+        pet.setId(dto.id());
+        pet.setNome(dto.nome());
+        pet.setIdade(dto.idade());
+        pet.setEspecie(dto.especie());
+        pet.setPorte(dto.porte());
+        pet.setRaca(dto.raca());
+        pet.setPeso(dto.peso());
+        pet.setTemperamento(dto.temperamento());
+        pet.setSexo(dto.sexo());
+        pet.setCastrado(dto.castrado());
+        pet.setHistoricoDoencaAlergia(dto.historicoDoencaAlergia());
+        pet.setConvivenciaAnimais(dto.convivenciaAnimais());
+        pet.setObservacao(dto.observacaoPet());
         return pet;
     }
 

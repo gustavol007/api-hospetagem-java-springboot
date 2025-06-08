@@ -1,13 +1,12 @@
 package com.hospetagem.hotel.controllers;
 
-import com.hospetagem.hotel.Security.LoginAttemptService;
+import com.hospetagem.hotel.security.LoginAttemptService;
 import com.hospetagem.hotel.service.ClienteService;
 import com.hospetagem.hotel.service.FuncionarioService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.support.SessionStatus;
 
 @RestController
 @RequestMapping("/api/session")

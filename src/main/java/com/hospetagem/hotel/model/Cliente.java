@@ -24,9 +24,8 @@ public class Cliente extends Pessoa{
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
     private List<Pet> pets = new ArrayList<>();
 
-    @OneToMany
-    @JoinColumn(name = "cliente_id")
-    private List<Reserva> reservas = new ArrayList<>();
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
+private List<Reserva> reservas = new ArrayList<>();
 
     @OneToMany
     @JoinColumn(name = "cliente_id")

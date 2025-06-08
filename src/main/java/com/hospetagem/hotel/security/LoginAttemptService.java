@@ -1,7 +1,5 @@
-package com.hospetagem.hotel.Security;
+package com.hospetagem.hotel.security;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

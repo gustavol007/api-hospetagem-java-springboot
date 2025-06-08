@@ -3,10 +3,11 @@ package com.hospetagem.hotel.dto;
 import java.sql.Date;
 import java.util.List;
 
+import com.hospetagem.hotel.model.Cliente;
 import com.hospetagem.hotel.model.Endereco;
 import com.hospetagem.hotel.model.Pessoa.Status;
-import com.hospetagem.hotel.model.Pessoa.Sexo;
 
+import com.hospetagem.hotel.model.enums.Sexo;
 import jakarta.validation.constraints.*;
 
 public record ClienteDTO(
