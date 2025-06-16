@@ -11,5 +11,6 @@ public record ReservaDTO(
         LocalTime horaEntrada,
         LocalTime horaSaida,
         Long clienteId,
+        List<Long> petsIds,
         List<Long> servicosIds
 ) {}

@@ -4,6 +4,7 @@ package com.hospetagem.hotel.dto;
 import com.hospetagem.hotel.model.enums.PortePet;
 import com.hospetagem.hotel.model.enums.SexoPet;
 import com.hospetagem.hotel.model.enums.SimNao;
+import com.hospetagem.hotel.model.enums.Temperamento;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -17,10 +18,11 @@ public record PetDTO(
         PortePet porte,
         String raca,
         String peso,
-        String temperamento,
+        Temperamento temperamento,
         SexoPet sexo,
         SimNao castrado,
         SimNao historicoDoencaAlergia,
         SimNao convivenciaAnimais,
+        String contato_emergencia,
         String observacaoPet
 ){}

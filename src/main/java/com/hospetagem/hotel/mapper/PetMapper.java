@@ -22,7 +22,8 @@ public class PetMapper {
                 pet.getCastrado(),
                 pet.getHistoricoDoencaAlergia(),
                 pet.getConvivenciaAnimais(),
-                pet.getObservacao()
+                pet.getContato_emergencia(),
+                pet.getObservacaoPet()
         );
     }
 
@@ -41,7 +42,8 @@ public class PetMapper {
         pet.setCastrado(dto.castrado());
         pet.setHistoricoDoencaAlergia(dto.historicoDoencaAlergia());
         pet.setConvivenciaAnimais(dto.convivenciaAnimais());
-        pet.setObservacao(dto.observacaoPet());
+        pet.setContato_emergencia(dto.contato_emergencia());
+        pet.setObservacaoPet(dto.observacaoPet());
         return pet;
     }
 

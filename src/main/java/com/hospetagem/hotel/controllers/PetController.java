@@ -18,7 +18,6 @@ public class PetController {
 
     @Autowired
     PetService petService;
-    @PreAuthorize("hasRole('CLIENTE')")
     @PostMapping("/cliente/{clienteId}")
     public ResponseEntity<PetDTO> criarPet(@PathVariable Long clienteId, @RequestBody @Validated PetDTO petDTO) {
         PetDTO dto = petService.criarPet(clienteId, petDTO);

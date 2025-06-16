@@ -3,6 +3,7 @@ package com.hospetagem.hotel.model;
 import com.hospetagem.hotel.model.enums.PortePet;
 import com.hospetagem.hotel.model.enums.SexoPet;
 import com.hospetagem.hotel.model.enums.SimNao;
+import com.hospetagem.hotel.model.enums.Temperamento;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -39,7 +40,8 @@ public class Pet {
     @Column(nullable = false)
     private String peso;
 
-    private String temperamento;
+    @Enumerated(EnumType.STRING)
+    private Temperamento temperamento;
 
     @Enumerated(EnumType.STRING)
     private SexoPet sexo;
@@ -52,8 +54,11 @@ public class Pet {
 
     @Enumerated(EnumType.STRING)
     private SimNao convivenciaAnimais;
+    
+    private String contato_emergencia;
 
-    private String observacao;
+    @Column(name = "observacao_pet")
+    private String observacaoPet;
 
     @ManyToMany(mappedBy = "pets")
 private List<Reserva> reservas = new ArrayList<>();

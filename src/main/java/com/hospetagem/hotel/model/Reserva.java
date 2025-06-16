@@ -48,12 +48,12 @@ private Cliente cliente;
 )
 private List<Pet> pets = new ArrayList<>();
 
-   @ManyToMany
-   @JoinTable(
-           name = "reserva_servicos",
-           joinColumns = @JoinColumn(name = "reserva_id"),
-           inverseJoinColumns = @JoinColumn(name = "servico_id")
-   )
-   private List<Servico> servicos = new ArrayList<>();
+@ManyToMany
+@JoinTable(
+    name = "reserva_servicos",
+    joinColumns = @JoinColumn(name = "reserva_id"),
+    inverseJoinColumns = @JoinColumn(name = "servico_id")
+)
+private List<Servico> servicos = new ArrayList<>();
 
 }

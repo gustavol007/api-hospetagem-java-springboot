@@ -14,49 +14,36 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/reservas")
 public class ReservaController {
-   @Autowired
-   private ReservaService reservaService;
+    @Autowired
+    private ReservaService reservaService;
 
-   @Autowired
-   private ReservaMapper reservaMapper;
+    @Autowired
+    private ReservaMapper reservaMapper;
 
-   @PostMapping(consumes = {"application/json", "application/json;charset=UTF-8"})
-   public ResponseEntity<ReservaDTO> criarReserva(
-           @RequestBody @Validated ReservaDTO reservaDTO,
-           @RequestParam List<Long> petIds,
-           @RequestParam(required = false) List<Long> servicosIds) {
+    @PostMapping(consumes = {"application/json", "application/json;charset=UTF-8"})
+    public ResponseEntity<ReservaDTO> criarReserva(
+            @RequestBody @Validated ReservaDTO reservaDTO) {
 
-       if(servicosIds == null) servicosIds = List.of();
-       reservaDTO = new ReservaDTO(
-               reservaDTO.id(),
-               reservaDTO.dataEntrada(),
-               reservaDTO.dataSaida(),
-               reservaDTO.horaEntrada(),
-               reservaDTO.horaSaida(),
-               reservaDTO.clienteId(),
-               servicosIds
-       );
+        Reserva novaReserva = reservaService.criarReserva(reservaDTO, reservaDTO.petsIds());
+        ReservaDTO dto = reservaMapper.toDTO(novaReserva);
+        return ResponseEntity.ok(dto);
+    }
 
-       Reserva novaReserva = reservaService.criarReserva(reservaDTO, petIds);
-       ReservaDTO dto = reservaMapper.toDTO(novaReserva);
-       return ResponseEntity.ok(dto);
-   }
+    @GetMapping("/{clienteId}")
+    public ResponseEntity<List<ReservaDTO>> listarReservasDoCliente(@PathVariable Long clienteId) {
+        List<ReservaDTO> reservas = reservaService.listarReservasDoCliente(clienteId);
+        return ResponseEntity.ok(reservas);
+    }
 
-   @GetMapping("/{clienteId}")
-   public ResponseEntity<List<ReservaDTO>> listarReservasDoCliente(@PathVariable Long clienteId) {
-       List<ReservaDTO> reservas = reservaService.listarReservasDoCliente(clienteId);
-       return ResponseEntity.ok(reservas);
-   }
+    @PostMapping("/confirmar/{reservaId}")
+    public ResponseEntity<Void> confirmarReserva(@PathVariable Long reservaId) {
+        reservaService.confirmarReserva(reservaId);
+        return ResponseEntity.noContent().build();
+    }
 
-   @PostMapping("/confirmar/{reservaId}")
-   public ResponseEntity<Void> confirmarReserva(@PathVariable Long reservaId) {
-       reservaService.confirmarReserva(reservaId);
-       return ResponseEntity.noContent().build();
-   }
-
-   @DeleteMapping("/{reservaId}")
-   public ResponseEntity<Void> cancelarReserva(@PathVariable Long reservaId) {
-       reservaService.cancelarReserva(reservaId);
-       return ResponseEntity.noContent().build();
-   }
+    @DeleteMapping("/{reservaId}")
+    public ResponseEntity<Void> cancelarReserva(@PathVariable Long reservaId) {
+        reservaService.cancelarReserva(reservaId);
+        return ResponseEntity.noContent().build();
+    }
 }
